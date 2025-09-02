@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TÔ PRONTA! — Catálogo Interativo</title>
+<style>
+  :root{
+    --bg: #f5e9dc;
+    --panel: #ffffff;
+    --ink: #2b2b2b;
+    --muted: #7a7a7a;
+    --lilac: #c98bc7;
+    --lilac-deep: #9d5ba0;
+    --footer: #be8ac0;
+    --border: #ead7ce;
+    --cta: #9d5ba0;      /* roxo CTAs secundários */
+    --wa: #25d366;       /* verde WhatsApp */
+    --wa-light: #c9f7dd; /* verde claro p/ copiar chave */
+    --gray-light: #e9ecef; /* cinza claro */
+  }
+  * { box-sizing: border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; }
+  .wrap{ max-width:1080px; margin:0 auto; padding:20px 16px; }
+
+  /* LOGO & HERO */
+  header .grid-head{ display:grid; grid-template-columns: 1fr 1fr; gap:18px; align-items:stretch; }
+  @media (max-width:860px){ header .grid-head{ grid-template-columns: 1fr; } }
+  .hero-left{ background: linear-gradient(135deg, var(--lilac) 0%, #e7b7e5 100%); color:#fff; border-radius:18px; padding:24px; display:flex; flex-direction:column; justify-content:flex-end; min-height:260px; position:relative; overflow:hidden; }
+  .logo{ position:absolute; top:18px; left:18px; display:flex; align-items:center; gap:10px; }
+  .logo-mark{ width:46px; height:46px; border-radius:50%; background: radial-gradient(circle at 30% 30%, #fff 0%, #ffe9f6 50%, #f1c9e3 100%); border: 2px solid #fff; box-shadow: 0 8px 20px rgba(0,0,0,.15); position:relative; }
+  .logo-mark::after{ content:"✧"; position:absolute; right:-8px; top:-8px; font-size:18px; color:#fff; text-shadow:0 1px 1px rgba(0,0,0,.2); }
+  .logo-title{ font-weight:900; letter-spacing:.04em; font-size:20px; text-transform:uppercase; line-height:1.05; }
+  .logo-slogan{ font-size:12px; font-weight:700; opacity:.95; line-height:1.05; }
+  .hero-title{ margin-top:18px; font-size: clamp(28px, 6vw, 48px); line-height:1.05; font-weight:900; }
+  .hero-right{ border-radius:18px; background:#d9b29d; min-height:260px; background-image: radial-gradient(75% 75% at 70% 10%, #efcfba 0%, #caa38f 65%, #b78d79 100%); }
+
+  /* GRID */
+  .grid{ display:grid; grid-template-columns: repeat(3, 1fr); gap:18px; margin-top:24px; }
+  @media (max-width:900px){ .grid{ grid-template-columns: repeat(2,1fr); } }
+  @media (max-width:560px){ .grid{ grid-template-columns: 1fr; } }
+
+  .card{ background:var(--panel); border:1px solid var(--border); border-radius:16px; overflow:hidden; display:flex; flex-direction:column; position:relative; }
+  .ph{ height:210px; background:#f6f0ea; display:flex; align-items:center; justify-content:center; }
+  .ph img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .pad{ padding:12px 14px 16px; }
+  .name{ font-weight:700; font-size:16px; }
+  .price{ color:var(--lilac-deep); font-weight:900; margin-top:6px; font-size:18px; }
+  .controls{ display:grid; grid-template-columns: 1fr auto; align-items:center; gap:10px; margin-top:8px; }
+  .qty{ display:flex; border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+  .qty button{ width:36px; height:38px; border:0; background:transparent; font-size:18px; cursor:pointer; }
+  .qty input{ width:52px; text-align:center; border:0; background:transparent; font-weight:700; }
+  .add{ background:var(--cta); color:#fff; border:0; border-radius:12px; padding:10px 12px; font-weight:800; cursor:pointer; }
+  .promo{ position:absolute; left:16px; top:16px; z-index:2; width:74px; height:74px; border-radius:50%; background: radial-gradient(circle at 30% 30%, #e8c1e7 0%, var(--lilac) 70%); color:#fff; display:grid; place-items:center; font-weight:900; font-size:11px; border:1px dashed #fff7; box-shadow: 0 8px 18px rgba(201,139,199,.35); }
+
+  /* CART BAR */
+  .cartbar{ position:fixed; left:0; right:0; bottom:0; background:#fff; border-top:1px solid var(--border); box-shadow: 0 -10px 24px rgba(0,0,0,.12); }
+  .cart{ max-width:1080px; margin:0 auto; padding:14px 16px; display:grid; gap:8px; }
+  .row{ display:grid; grid-template-columns: 1fr auto; align-items:center; gap:14px; }
+  .total{ font-size:18px; font-weight:900; }
+  .mini{ font-size:12px; color:var(--muted); }
+  .btns{ display:flex; gap:10px; flex-wrap:wrap; }
+  .cta{ background:var(--cta); color:#fff; border:0; border-radius:12px; padding:12px 14px; font-weight:800; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; }
+  .cta.wa{ background:var(--wa); color:#0b0b0b; } /* WhatsApp verde claro */
+  .pix{ background: var(--lilac); }
+  .light{ background: var(--gray-light); color:#111; border:0; } /* cinza claro */
+
+  /* MODALS */
+  .backdrop{ position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; padding:16px; z-index:50; }
+  .modal{ width:min(720px, 96vw); background:#fff; border-radius:16px; border:1px solid var(--border); overflow:hidden; box-shadow: 0 30px 80px rgba(0,0,0,.35); }
+  .modal .head{ background:linear-gradient(135deg, var(--lilac), #e7b7e5); color:#fff; padding:16px 18px; display:flex; align-items:center; justify-content:space-between; }
+  .modal .title{ font-weight:900; letter-spacing:.02em; }
+  .modal .close{ background:transparent; border:0; color:#fff; font-size:22px; cursor:pointer; }
+  .modal .body{ padding:18px; color:var(--ink); }
+  .items{ border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+  .items table{ width:100%; border-collapse:collapse; }
+  .items th, .items td{ padding:10px 12px; border-bottom:1px solid var(--border); font-size:14px; }
+  .items th{ background:#fff7fb; text-align:left; }
+  .total-line{ display:flex; justify-content:flex-end; gap:16px; margin-top:12px; font-weight:900; }
+  .actions{ display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
+  .ghost{ background:transparent; border:1px dashed var(--border); color:var(--ink); }
+
+  /* PIX */
+  .pix-block{ background:#fff3fa; border:1px dashed var(--lilac); border-radius:12px; padding:12px 14px; font-weight:800; }
+  .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .pix-note{ font-size:12px; color:#7a7a7a; margin-top:6px; }
+
+  /* Copiar chave - verde claro -> cinza quando copiado */
+  .copy-btn{ background: var(--wa-light); color:#0b0b0b; }
+  .copy-btn.copied{ background: var(--gray-light); color:#333; }
+  
+  footer{ background:var(--footer); color:#fff; padding:14px 0; margin-top:40px; }
+  footer .wrap{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  footer a{ color:#fff; text-decoration:none; font-weight:700; }
+</style>
+</head>
+<body>
+  <header class="wrap">
+    <div class="grid-head">
+      <div class="hero-left">
+        <div class="logo">
+          <div class="logo-mark" aria-hidden="true"></div>
+          <div>
+            <div class="logo-title">TÔ PRONTA!</div>
+            <div class="logo-slogan">make feita, autoestima ativada</div>
+          </div>
+        </div>
+        <div class="hero-title">Veja nosso<br/>catálogo de<br/>produtos!</div>
+      </div>
+      <div class="hero-right"></div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="grid" id="grid"></section>
+  </main>
+
+  <div class="cartbar">
+    <div class="cart">
+      <div class="row">
+        <div>
+          <div class="total">Total: <span id="total">R$ 0,00</span></div>
+          <div class="mini">Selecione as quantidades e finalize seu pedido.</div>
+        </div>
+        <div class="btns">
+          <button id="btn-checkout" class="cta wa">Finalizar pedido</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHECKOUT MODAL -->
+  <div id="checkout-backdrop" class="backdrop" role="dialog" aria-modal="true" aria-labelledby="coTitle">
+    <div class="modal">
+      <div class="head">
+        <div id="coTitle" class="title">Seu pedido</div>
+        <button class="close" data-close="checkout" aria-label="Fechar">×</button>
+      </div>
+      <div class="body">
+        <div class="items">
+          <table>
+            <thead>
+              <tr><th>Item</th><th>Qtd</th><th>Preço</th><th>Subtotal</th></tr>
+            </thead>
+            <tbody id="checkout-items"></tbody>
+          </table>
+        </div>
+        <div class="total-line">Total: <span id="checkout-total">R$ 0,00</span></div>
+        <div class="actions">
+          <a id="checkout-wa" class="cta wa" target="_blank" rel="noopener">Enviar no WhatsApp</a>
+          <button id="checkout-pix" class="cta pix">Pagar agora (PIX)</button>
+          <button id="checkout-cash" class="cta">Pagar em Dinheiro</button>
+          <button class="cta light" data-close="checkout">Voltar ao catálogo</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PIX MODAL -->
+  <div id="pix-backdrop" class="backdrop" role="dialog" aria-modal="true" aria-labelledby="pixTitle">
+    <div class="modal">
+      <div class="head">
+        <div id="pixTitle" class="title">Pagamento via PIX</div>
+        <button class="close" data-close="pix" aria-label="Fechar">×</button>
+      </div>
+      <div class="body">
+        <div class="items" style="margin-bottom:12px;">
+          <table>
+            <thead><tr><th>Item</th><th>Qtd</th><th>Subtotal</th></tr></thead>
+            <tbody id="pix-items"></tbody>
+          </table>
+        </div>
+        <div class="total-line">Total: <span id="pix-total">R$ 0,00</span></div>
+
+        <div class="pix-block">
+          Chave PIX (e-mail): <span class="mono" id="pix-key">wagnerx2009@hotmail.com</span>
+          <button id="btn-copy-pix" class="cta copy-btn" style="margin-left:8px;">Copiar chave</button>
+          <div class="pix-note">Abra o app do seu banco → PIX → Colar chave → Confira o valor e confirme.</div>
+        </div>
+
+        <div class="actions" style="margin-top:14px;">
+          <a id="pix-wa" class="cta wa" target="_blank" rel="noopener">Confirmar pelo WhatsApp</a>
+          <button class="cta light" data-close="pix">Voltar ao catálogo</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASH MODAL -->
+  <div id="cash-backdrop" class="backdrop" role="dialog" aria-modal="true" aria-labelledby="cashTitle">
+    <div class="modal">
+      <div class="head">
+        <div id="cashTitle" class="title">Pagamento em Dinheiro</div>
+        <button class="close" data-close="cash" aria-label="Fechar">×</button>
+      </div>
+      <div class="body">
+        <div class="items" style="margin-bottom:12px;">
+          <table>
+            <thead><tr><th>Item</th><th>Qtd</th><th>Subtotal</th></tr></thead>
+            <tbody id="cash-items"></tbody>
+          </table>
+        </div>
+        <div class="total-line">Total: <span id="cash-total">R$ 0,00</span></div>
+
+        <div class="pix-note">Informe no WhatsApp se precisa de <b>troco</b> (ex.: “troco para R$ 100,00”).</div>
+
+        <div class="actions" style="margin-top:14px;">
+          <a id="cash-wa" class="cta wa" target="_blank" rel="noopener">Confirmar pelo WhatsApp</a>
+          <button class="cta light" data-close="cash">Voltar ao catálogo</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="wrap">
+      <div>Rua Alegre, 123 — Cidade Brasileira</div>
+      <div><a href="https://wa.me/5543999084396" target="_blank">@topronta</a></div>
+    </div>
+  </footer>
+
+<script>
+const WHATSAPP_NUMBER = "5543999084396";
+const PIX_KEY_EMAIL = "wagnerx2009@hotmail.com";
+const HEADER_MSG = "Olá! Quero finalizar meu pedido:";
+
+const PRODUCTS = [
+  { "id": 1, "name": "Produto 1", "price": 10.0, "image": "https://picsum.photos/seed/mkp1/640/480" },
+  { "id": 2, "name": "Produto 2", "price": 25.0, "image": "https://picsum.photos/seed/mkp2/640/480" },
+  { "id": 3, "name": "Produto 3", "price": 5.0,  "image": "https://picsum.photos/seed/mkp3/640/480" },
+  { "id": 4, "name": "Produto 4", "price": 25.0, "image": "https://picsum.photos/seed/mkp4/640/480" },
+  { "id": 5, "name": "Produto 5", "price": 5.0,  "image": "https://picsum.photos/seed/mkp5/640/480" },
+  { "id": 6, "name": "Produto 6", "price": 10.0, "image": "https://picsum.photos/seed/mkp6/640/480" },
+  { "id": 7, "name": "Produto 7", "price": 5.0,  "image": "https://picsum.photos/seed/mkp7/640/480" },
+  { "id": 8, "name": "Produto 8", "price": 10.0, "image": "https://picsum.photos/seed/mkp8/640/480" },
+  { "id": 9, "name": "Produto 9", "price": 25.0, "image": "https://picsum.photos/seed/mkp9/640/480" }
+];
+
+const grid = document.getElementById("grid");
+const totalEl = document.getElementById("total");
+const btnCheckout = document.getElementById("btn-checkout");
+
+const checkoutBackdrop = document.getElementById("checkout-backdrop");
+const checkoutItems = document.getElementById("checkout-items");
+const checkoutTotal = document.getElementById("checkout-total");
+const checkoutWA = document.getElementById("checkout-wa");
+const checkoutPIX = document.getElementById("checkout-pix");
+const checkoutCASH = document.getElementById("checkout-cash");
+
+const pixBackdrop = document.getElementById("pix-backdrop");
+const pixItems = document.getElementById("pix-items");
+const pixTotal = document.getElementById("pix-total");
+const pixKeySpan = document.getElementById("pix-key");
+const pixWA = document.getElementById("pix-wa");
+const btnCopyPix = document.getElementById("btn-copy-pix");
+
+const cashBackdrop = document.getElementById("cash-backdrop");
+const cashItems = document.getElementById("cash-items");
+const cashTotal = document.getElementById("cash-total");
+const cashWA = document.getElementById("cash-wa");
+
+const BRL = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+const cart = new Map();
+
+/* ===== Render dos cards ===== */
+function renderCard(p, promo=false){
+  const a = document.createElement("div");
+  a.className = "card";
+  a.innerHTML = `
+    <div class="ph">${p.image ? `<img src="${p.image}" alt="${p.name}">` : ""}</div>
+    <div class="pad">
+      <div class="name">${p.name}</div>
+      <div class="price">${BRL.format(p.price)}</div>
+      <div class="controls">
+        <div class="qty">
+          <button aria-label="menos" data-act="dec">−</button>
+          <input type="text" value="0" inputmode="numeric" pattern="[0-9]*" aria-label="quantidade" />
+          <button aria-label="mais" data-act="inc">+</button>
+        </div>
+        <button class="add">Adicionar</button>
+      </div>
+    </div>`;
+  if (promo){
+    const tag = document.createElement("div");
+    tag.className = "promo"; tag.textContent = "PROMOÇÃO";
+    a.appendChild(tag);
+  }
+  const minus = a.querySelector('[data-act="dec"]');
+  const plus  = a.querySelector('[data-act="inc"]');
+  const input = a.querySelector('input');
+  const add   = a.querySelector('.add');
+
+  minus.addEventListener("click", () => { input.value = Math.max(0, (parseInt(input.value||"0")-1)); });
+  plus .addEventListener("click", () => { input.value = Math.max(0, (parseInt(input.value||"0")+1)); });
+  input.addEventListener("input", () => { input.value = String((input.value||"").replace(/\D+/g,"")).slice(0,3); });
+  add  .addEventListener("click", () => {
+    const qty = Math.max(0, parseInt(input.value||"0"));
+    if (qty>0){ cart.set(p.id, (cart.get(p.id)||0) + qty); input.value = 0; updateTotal(); a.animate([{transform:"scale(1)"},{transform:"scale(1.02)"},{transform:"scale(1)"}],{duration:180}); }
+  });
+
+  return a;
+}
+
+function mountGrid(){
+  grid.innerHTML = "";
+  PRODUCTS.forEach((p, i) => grid.appendChild(renderCard(p, [0,3,6].includes(i))));
+}
+
+/* ===== Totais e WA link ===== */
+function cartTotal(){
+  let total = 0;
+  cart.forEach((qty,id)=>{ const p = PRODUCTS.find(x=>x.id===id); if(p) total += p.price*qty; });
+  return total;
+}
+function updateTotal(){
+  totalEl.textContent = BRL.format(cartTotal());
+}
+function buildWAtext(extraLine){
+  let lines = [HEADER_MSG, ""];
+  cart.forEach((qty, id) => {
+    const p = PRODUCTS.find(x => x.id === id); if(!p) return;
+    lines.push(`• ${p.name}  x${qty}  —  ${BRL.format(p.price * qty)}`);
+  });
+  lines.push("");
+  lines.push(`Total: ${BRL.format(cartTotal())}`);
+  if (extraLine) lines.push("", extraLine);
+  return encodeURIComponent(lines.join("\n"));
+}
+function waLink(extraLine){ return `https://wa.me/${WHATSAPP_NUMBER}?text=${buildWAtext(extraLine)}`; }
+
+/* ===== Helpers p/ tabelas ===== */
+function fillTable(tbody, cols){
+  tbody.innerHTML = "";
+  if (cart.size === 0){
+    tbody.innerHTML = `<tr><td colspan="${cols}" style="text-align:center">Seu carrinho está vazio.</td></tr>`;
+  } else {
+    cart.forEach((qty, id) => {
+      const p = PRODUCTS.find(x=>x.id===id); if(!p) return;
+      const tr = document.createElement("tr");
+      const subtotal = p.price * qty;
+      const cells = (cols === 4)
+        ? `<td>${p.name}</td><td>${qty}</td><td>${BRL.format(p.price)}</td><td>${BRL.format(subtotal)}</td>`
+        : `<td>${p.name}</td><td>${qty}</td><td>${BRL.format(subtotal)}</td>`;
+      tr.innerHTML = cells;
+      tbody.appendChild(tr);
+    });
+  }
+}
+
+/* ===== Checkout modal ===== */
+function openCheckout(){
+  fillTable(checkoutItems, 4);
+  checkoutTotal.textContent = BRL.format(cartTotal());
+  checkoutWA.href = waLink();
+  checkoutBackdrop.style.display = "flex";
+}
+function closeCheckout(){ checkoutBackdrop.style.display = "none"; }
+
+/* ===== PIX modal ===== */
+function openPix(){
+  fillTable(pixItems, 3);
+  pixTotal.textContent = BRL.format(cartTotal());
+  pixKeySpan.textContent = PIX_KEY_EMAIL;
+  pixWA.href = waLink("Forma de pagamento: PIX");
+  pixBackdrop.style.display = "flex";
+}
+function closePix(){ pixBackdrop.style.display = "none"; }
+
+/* ===== Cash modal ===== */
+function openCash(){
+  fillTable(cashItems, 3);
+  cashTotal.textContent = BRL.format(cartTotal());
+  cashWA.href = waLink("Forma de pagamento: Dinheiro");
+  cashBackdrop.style.display = "flex";
+}
+function closeCash(){ cashBackdrop.style.display = "none"; }
+
+/* ===== Listeners ===== */
+btnCheckout.addEventListener("click", openCheckout);
+checkoutPIX.addEventListener("click", () => { closeCheckout(); openPix(); });
+checkoutCASH.addEventListener("click", () => { closeCheckout(); openCash(); });
+
+document.querySelectorAll('[data-close="checkout"]').forEach(b => b.addEventListener("click", closeCheckout));
+document.querySelectorAll('[data-close="pix"]').forEach(b => b.addEventListener("click", closePix));
+document.querySelectorAll('[data-close="cash"]').forEach(b => b.addEventListener("click", closeCash));
+
+document.getElementById("checkout-backdrop").addEventListener("click", (e)=>{ if(e.target.id==="checkout-backdrop") closeCheckout(); });
+document.getElementById("pix-backdrop").addEventListener("click", (e)=>{ if(e.target.id==="pix-backdrop") closePix(); });
+document.getElementById("cash-backdrop").addEventListener("click", (e)=>{ if(e.target.id==="cash-backdrop") closeCash(); });
+
+btnCopyPix.addEventListener("click", async ()=>{
+  try{
+    await navigator.clipboard.writeText(PIX_KEY_EMAIL);
+    btnCopyPix.classList.add("copied");
+    btnCopyPix.textContent = "Copiado!";
+    setTimeout(()=>{
+      btnCopyPix.classList.remove("copied");
+      btnCopyPix.textContent = "Copiar chave";
+    }, 1800);
+  }catch{
+    alert("Não foi possível copiar. Chave: "+PIX_KEY_EMAIL);
+  }
+});
+
+/* Init */
+mountGrid();
+updateTotal();
+</script>
+</body>
+</html>
